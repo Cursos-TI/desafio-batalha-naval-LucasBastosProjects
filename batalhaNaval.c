@@ -15,7 +15,7 @@ int main() {
 
     printf(" ------ TABULEIRO ------\n\n");
 
-    // Tabuleiro 10x10 com água = 0
+    // Tabuleiro 10x10 com água com o valor = 0 no tabuleiro
     int tabuleiro[10][10] = {
         {0,0,0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0,0,0},
@@ -52,7 +52,7 @@ int main() {
         tabuleiro[linhaVertical + casas][colunaVertical] = navioVertical[casas];
     }
 
-    // Impressão do tabuleiro: cabeçalho A..J e linhas 1..10
+    // Impressão do tabuleiro: cabeçalho de A a J e colunas de 1 a 10
     int linha, coluna;
     printf("    ");
     for (coluna = 0; coluna < 10; coluna++) {
