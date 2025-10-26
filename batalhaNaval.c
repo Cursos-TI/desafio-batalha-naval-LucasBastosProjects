@@ -4,72 +4,97 @@
 
 #include <stdio.h>
 
-int main() {
+// ----- defines de valores -----
+#define Linha     10     // linhas do tabuleiro
+#define Coluna    10     // colunas do tabuleiro
+#define Navio      3     // valor que marca parte do navio no tabuleiro
+#define NavioTam   3     // tamanho fixo dos navios
 
-    printf("\n");
-    printf(" ***********************\n");
+int main() {
+    int i, j;
+
+    printf("\n ***********************\n");
     printf(" **** Batalha Naval ****\n");
     printf(" ***********************\n\n");
-
     printf(" ------ TABULEIRO ------\n\n");
 
-    // Tabuleiro 10x10 com água com o valor = 0 no tabuleiro
-    int tabuleiro[10][10] = {
-        {0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,0,0}
-    };
+    // 1) tabuleiro 10x10 zerado (água = 0)
+    int tabuleiro[Linha][Coluna];
+    for (i = 0; i < Linha; i++)
+        for (j = 0; j < Coluna; j++)
+            tabuleiro[i][j] = 0;
 
-    // Dois navios com tamanho 3 e valor = 3 no tabuleiro
-    int navioHorizontal[3] = {3,3,3};
-    int navioVertical[3]   = {3,3,3};
+    // 2) vetores dos navios
+    int navioH[NavioTam] = {Navio, Navio, Navio}; // horizontal
+    int NavioV[NavioTam] = {Navio, Navio, Navio}; // vertical
+    int navioD[NavioTam] = {Navio, Navio, Navio}; // diagonais
 
-    // Coordenadas iniciais (índices 0..9)
-    int linhaHorizontal = 1;    // linha do navio horizontal (mostra 2 para o jogador)
-    int colunaHorizontal = 1;   // coluna do navio horizontal (mostra B para o jogador)
-    int linhaVertical = 4;      // linha do navio vertical   (mostra 5 para o jogador)
-    int colunaVertical = 7;     // coluna do navio vertical  (mostra H para o jogador)
+    // 3) coordenadas (0..9) – escolhidas sem sobreposição
+    int linH = 1, colH = 1;       // horizontal
+    int linV = 4, colV = 7;       // vertical
 
-    // Posicionamento COM LOOPS (usa 'casas' como contador de partes 0,1,2)
-    int casas;
+    // Diagonal Baixo-Direita (diagBD): (lin+i, col+i)
+    int linDiagBD = 0, colDiagBD = 5; // -> (0,5) (1,6) (2,7)
 
-    // Horizontal: mesma linha, avança as colunas
-    for (casas = 0; casas < 3; casas++) {
-        tabuleiro[linhaHorizontal][colunaHorizontal + casas] = navioHorizontal[casas];
-    }
+    // Diagonal Baixo-Esquerda (diagBE): (lin+i, col-i)
+    int linDiagBE = 6, colDiagBE = 9; // -> (6,9) (7,8) (8,7)
 
-    // Vertical: mesma coluna, avança as linhas
-    for (casas = 0; casas < 3; casas++) {
-        tabuleiro[linhaVertical + casas][colunaVertical] = navioVertical[casas];
-    }
+    // 4) validação + posicionamento
+    int casas, ok;
 
-    // Impressão do tabuleiro: cabeçalho de A a J e colunas de 1 a 10
-    int linha, coluna;
-    printf("    ");
-    for (coluna = 0; coluna < 10; coluna++) {
-        printf("%c ", 'A' + coluna);
-    }
+    // --- Navio Horizontal ---
+    ok = 1;
+    if (linH < 0 || linH >= Linha) ok = 0;
+    if (colH < 0 || colH > Coluna - NavioTam) ok = 0;       // precisa col, col+1, col+2
+    if (ok) for (casas = 0; casas < NavioTam; casas++)
+        if (tabuleiro[linH][colH + casas] != 0) ok = 0;     // sem sobreposição
+    if (ok) for (casas = 0; casas < NavioTam; casas++)
+        tabuleiro[linH][colH + casas] = navioH[casas];
+    else printf("ERRO: H nao cabe/sobrepoe em [%d,%d]\n", linH, colH);
+
+    // --- Navio Vertical ---
+    ok = 1;
+    if (colV < 0 || colV >= Coluna) ok = 0;
+    if (linV < 0 || linV > Linha - NavioTam) ok = 0;        // precisa lin, lin+1, lin+2
+    if (ok) for (casas = 0; casas < NavioTam; casas++)
+        if (tabuleiro[linV + casas][colV] != 0) ok = 0;
+    if (ok) for (casas = 0; casas < NavioTam; casas++)
+        tabuleiro[linV + casas][colV] = NavioV[casas];
+    else printf("ERRO: V nao cabe/sobrepoe em [%d,%d]\n", linV, colV);
+
+    // --- Navio Diagonal Baixo-Direita (diagBD): (lin+i, col+i) ---
+    ok = 1;
+    if (linDiagBD < 0 || linDiagBD > Linha - NavioTam) ok = 0;
+    if (colDiagBD < 0 || colDiagBD > Coluna - NavioTam) ok = 0;
+    if (ok) for (casas = 0; casas < NavioTam; casas++)
+        if (tabuleiro[linDiagBD + casas][colDiagBD + casas] != 0) ok = 0;
+    if (ok) for (casas = 0; casas < NavioTam; casas++)
+        tabuleiro[linDiagBD + casas][colDiagBD + casas] = navioD[casas];
+    else printf("ERRO: diagBD nao cabe/sobrepoe em [%d,%d]\n", linDiagBD, colDiagBD);
+
+    // --- Navio Diagonal Baixo-Esquerda (diagBE): (lin+i, col-i) ---
+    ok = 1;
+    if (linDiagBE < 0 || linDiagBE > Linha - NavioTam) ok = 0;
+    if (colDiagBE < NavioTam - 1 || colDiagBE >= Coluna) ok = 0; // precisa col, col-1, col-2
+    if (ok) for (casas = 0; casas < NavioTam; casas++)
+        if (tabuleiro[linDiagBE + casas][colDiagBE - casas] != 0) ok = 0;
+    if (ok) for (casas = 0; casas < NavioTam; casas++)
+        tabuleiro[linDiagBE + casas][colDiagBE - casas] = navioD[casas];
+    else printf("ERRO: diagBE nao cabe/sobrepoe em [%d,%d]\n", linDiagBE, colDiagBE);
+
+    // 5) impressão A a J, e 1 a 10 do tabuleiro
+    printf("\n    ");
+    for (j = 0; j < Coluna; j++) printf("%c ", 'A' + j);
     printf("\n");
-
-    for (linha = 0; linha < 10; linha++) {
-        printf("%2d  ", linha + 1);
-        for (coluna = 0; coluna < 10; coluna++) {
-            printf("%d ", tabuleiro[linha][coluna]);
-        }
+    for (i = 0; i < Linha; i++) {
+        printf("%2d  ", i + 1);
+        for (j = 0; j < Coluna; j++) printf("%d ", tabuleiro[i][j]);
         printf("\n");
     }
-    printf("\n");
-    printf("***** Fim do jogo! *****\n\n");
-
+    printf("\n***** Fim do jogo! *****\n\n");
     return 0;
 }
+
 
 
     // Nível Aventureiro - Expansão do Tabuleiro e Posicionamento Diagonal
